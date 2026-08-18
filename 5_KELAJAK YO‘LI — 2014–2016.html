@@ -644,7 +644,34 @@ go(0);
 <style id="mq-kiosk-css">
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
 html,body{overscroll-behavior:none;-webkit-touch-callout:none}
+
+/* ---------- блокировка экрана после простоя ---------- */
+.mq-lock{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(4,8,16,.94);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  opacity:0;transition:opacity .7s ease;
+}
+.mq-lock.is-on{opacity:1}
+.mq-lock[hidden]{display:none}
+.mq-lock__inner{display:flex;flex-direction:column;align-items:center;gap:38px;text-align:center;padding:0 8vw}
+.mq-lock__logo{width:132px;height:auto;opacity:.92;filter:drop-shadow(0 10px 26px rgba(0,0,0,.8))}
+.mq-lock__hint{
+  font-family:"Trajan Pro","Palatino Linotype","Book Antiqua",Georgia,"Times New Roman",serif;
+  font-size:19px;letter-spacing:.3em;text-transform:uppercase;line-height:2.1;
+  color:rgba(242,221,168,.88);
+  animation:mq-lock-pulse 2.8s ease-in-out infinite;
+}
+@keyframes mq-lock-pulse{0%,100%{opacity:.5}50%{opacity:1}}
 </style>
+<div class="mq-lock" id="mq-lock" hidden>
+  <div class="mq-lock__inner">
+    <div class="mq-lock__hint">
+      Ekranga teging<br>Коснитесь экрана<br>Touch the screen
+    </div>
+  </div>
+</div>
 <script id="mq-kiosk-js">
 (function(){
   "use strict";
@@ -691,6 +718,75 @@ html,body{overscroll-behavior:none;-webkit-touch-callout:none}
     }catch(err){}
   }
   document.addEventListener('pointerdown', beep, true);
+
+  /* ---------- простой 5 минут -> экран блокируется и уходит на заставку ----
+     Любое касание снимает блокировку и открывает титульный экран. */
+  var IDLE_MS = 5 * 60 * 1000, idleTimer = null, locked = false;
+  var lockEl = document.getElementById('mq-lock');
+
+  function langNow(){
+    var l = null;
+    try{ l = new URLSearchParams(location.search).get('lang'); }catch(e){}
+    if (l !== 'uz' && l !== 'ru' && l !== 'en'){
+      l = null;
+      try{ l = localStorage.getItem('bipLang'); }catch(e){}
+    }
+    return (l === 'uz' || l === 'ru' || l === 'en') ? l : 'uz';
+  }
+
+  function dressLock(){
+    if (!lockEl || lockEl.querySelector('.mq-lock__logo')) return;
+    var src = document.querySelector('.mq-head__logo, .tp-logo, .tp-head__logo');
+    if (!src || !src.getAttribute('src')) return;
+    var img = document.createElement('img');
+    img.className = 'mq-lock__logo';
+    img.src = src.getAttribute('src');
+    img.alt = '';
+    lockEl.querySelector('.mq-lock__inner').insertBefore(img, lockEl.querySelector('.mq-lock__hint'));
+  }
+
+  function onSplashPage(){ return !!document.getElementById('tp-splash'); }
+
+  function lock(){
+    if (locked || !lockEl) return;
+    locked = true;
+    dressLock();
+    lockEl.hidden = false;
+    void lockEl.offsetWidth;
+    lockEl.classList.add('is-on');
+  }
+
+  function toSplash(){
+    if (onSplashPage()){
+      if (location.hash !== '#tp-splash') location.hash = '#tp-splash';
+      else window.dispatchEvent(new HashChangeEvent('hashchange'));
+    } else {
+      location.href = 'index.html?lang=' + langNow();
+    }
+  }
+
+  function unlock(){
+    if (!locked) return;
+    locked = false;
+    if (lockEl){
+      lockEl.classList.remove('is-on');
+      setTimeout(function(){ if (!locked) lockEl.hidden = true; }, 700);
+    }
+    toSplash();
+  }
+
+  function resetIdle(){
+    if (locked) return;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(lock, IDLE_MS);
+  }
+
+  ['pointerdown','touchstart','mousemove','wheel','keydown'].forEach(function(ev){
+    document.addEventListener(ev, function(){
+      if (locked) unlock(); else resetIdle();
+    }, {passive:true, capture:true});
+  });
+  resetIdle();
 })();
 </script>
 </body>
