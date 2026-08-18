@@ -205,8 +205,6 @@ body.tp-mode-inner .tp-bg__veil{
   color:var(--tp-gold-hi);
   margin-top:auto;padding-top:3.2rem;
 }
-.tp-lang__name{font-size:1.42rem;letter-spacing:.3em;text-transform:uppercase;color:var(--tp-text-dim)}
-.tp-lang__flagline{width:5rem;height:1px;background:var(--tp-line);margin:.9rem 0 .2rem}
 
 @media (orientation:landscape){
   #tp-splash{padding:1.5rem 4rem 2.5rem}
@@ -222,7 +220,6 @@ body.tp-mode-inner .tp-bg__veil{
   .tp-langs{gap:2.4rem;flex-wrap:nowrap}
   .tp-lang{width:16.5rem;height:12.6rem;border-radius:8.2rem 8.2rem 1.2rem 1.2rem;padding-bottom:1.9rem}
   .tp-lang__code{font-size:3.3rem;padding-top:2.4rem}
-  .tp-lang__name{font-size:1.24rem}
 }
 
 
@@ -378,26 +375,20 @@ body.tp-mode-inner .tp-bg__veil{
 .tp-splash__top{margin-top:0}
 /* сдвиг трансформом: поток не меняется, блоки не наезжают.
    !important — анимация появления с fill-mode:both перебивает обычные правила */
-.tp-splash__mid{justify-content:center;transform:translateY(-3vh)!important}
+/* +40px — воздух сверху над заголовком обложки */
+.tp-splash__mid{justify-content:center;transform:translateY(calc(-3vh + 40px))!important}
 .tp-splash__bot{transform:none!important;padding-bottom:4vh;gap:1.6rem}
-.tp-langhint{
-  font-family:var(--tp-display);font-size:1.15rem;letter-spacing:.32em;
-  text-transform:uppercase;color:var(--tp-text-dim);opacity:.92;
-  padding-left:.32em;text-shadow:0 .1rem .3rem rgba(0,0,0,.6);
-}
 .tp-langs{gap:2.6rem;max-width:70rem;margin:0 auto}
 .tp-lang{width:14.2rem;height:11.4rem;padding-bottom:1.6rem;gap:.4rem;
   border-radius:7.1rem 7.1rem 1rem 1rem}
 .tp-lang__code{font-size:2.9rem;padding-top:2rem;letter-spacing:.12em}
-.tp-lang__flagline{width:3.6rem;margin:.55rem 0 .15rem}
-.tp-lang__name{font-size:1.06rem;letter-spacing:.22em}
 
 /* --- вертикальный экран: карточки в сетку 2+2+1 --- */
 @media (max-aspect-ratio:1/1){
   .tp-hero{font-size:6.4rem}
   .tp-hero__sup{font-size:2.3rem}
   .tp-hero__sub{font-size:1.55rem}
-  .tp-splash__mid{transform:translateY(-5vh)!important}
+  .tp-splash__mid{transform:translateY(calc(-5vh + 40px))!important}
   .tp-head{padding:2.4rem 3rem}
   .tp-menu__body{padding:2.6vh 4vw 2.6vh;gap:2.4vh;justify-content:center;overflow:hidden}
   .tp-grid{
@@ -414,8 +405,6 @@ body.tp-mode-inner .tp-bg__veil{
   .tp-langs{gap:3rem}
   .tp-lang{width:16rem;height:12.8rem;border-radius:8rem 8rem 1rem 1rem}
   .tp-lang__code{font-size:3.3rem;padding-top:2.3rem}
-  .tp-lang__name{font-size:1.2rem}
-  .tp-langhint{font-size:1.3rem}
 }
 
 /* ---- карточки одинаковой высоты: ровный ряд ---- */
@@ -439,17 +428,22 @@ body.tp-mode-inner .tp-bg__veil{
 #tp-toast.is-on{opacity:1;transform:translate(-50%,0)}
 
 /* ================= ОБЛОЖКА: «MUSTAQILLIK YO‘LLARI» =================
-   Новый заголовок на 3 знака длиннее прежнего «MAGISTRALLAR SARI»,
-   поэтому кегль уменьшен на 15% — строка занимает ту же ширину,
-   что и раньше, и не выходит за края экрана 1080 px.
+   Заголовок держим в полосе 1020 px с воздухом по краям экрана 1080 px:
+   кегль уменьшен, а скрипт tpFitHero() дожимает строку, если шрифт
+   отрисовался шире расчётного.
    Специфичность (0,2,0) перебивает все базовые правила .tp-hero. */
-.tp-splash__mid .tp-hero{font-size:4.42rem;white-space:nowrap}
+.tp-splash__mid{max-width:1020px;width:100%;margin-left:auto;margin-right:auto}
+.tp-splash__mid .tp-hero{font-size:4rem;white-space:nowrap;max-width:1020px}
 @media (orientation:landscape){
-  .tp-splash__mid .tp-hero{font-size:5.78rem}
+  .tp-splash__mid .tp-hero{font-size:5.2rem}
 }
 @media (max-aspect-ratio:1/1){
-  .tp-splash__mid .tp-hero{font-size:5.44rem}
+  .tp-splash__mid .tp-hero{font-size:4.9rem}
 }
+
+/* Выбор языка — только коды UZ / RU / EN, без подписей и линий */
+.tp-lang{justify-content:center;padding-bottom:0;gap:0}
+.tp-lang__code{margin-top:0;padding-top:0}
 
 /* Годы периода — отдельной строкой, мельче основного названия раздела.
    Так длинные заголовки с датами не разрастаются и карточка не переполняется. */
@@ -488,22 +482,15 @@ body.tp-mode-inner .tp-bg__veil{
   </div>
 
   <div class="tp-splash__bot">
-    <div class="tp-langhint">Tilni tanlang · Выберите язык · Select language</div>
     <div class="tp-langs">
       <button class="tp-lang" data-lang="uz">
         <span class="tp-lang__code">UZ</span>
-        <span class="tp-lang__flagline"></span>
-        <span class="tp-lang__name">O‘ZBEKCHA</span>
       </button>
       <button class="tp-lang" data-lang="ru">
         <span class="tp-lang__code">RU</span>
-        <span class="tp-lang__flagline"></span>
-        <span class="tp-lang__name">RUSSKIY</span>
       </button>
       <button class="tp-lang" data-lang="en">
         <span class="tp-lang__code">EN</span>
-        <span class="tp-lang__flagline"></span>
-        <span class="tp-lang__name">ENGLISH</span>
       </button>
     </div>
   </div>
@@ -779,6 +766,21 @@ en:{
 
   window.addEventListener('hashchange', checkHashNav);
   checkHashNav();
+
+  /* --- заголовок обложки не шире 1020 px --- */
+  function tpFitHero(){
+    var el = document.querySelector('#tp-splash .tp-hero');
+    if (!el) return;
+    var MAX_W = Math.min(1020, window.innerWidth - 60);
+    el.style.fontSize = '';
+    var base = parseFloat(window.getComputedStyle(el).fontSize);
+    var w = el.scrollWidth;
+    if (w > MAX_W) el.style.fontSize = (base * MAX_W / w) + 'px';
+  }
+  tpFitHero();
+  window.addEventListener('resize', tpFitHero);
+  window.addEventListener('orientationchange', tpFitHero);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(tpFitHero);
 })();
 </script>
 </body>
