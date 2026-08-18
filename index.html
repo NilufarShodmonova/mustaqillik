@@ -295,8 +295,10 @@ body.tp-mode-inner .tp-bg__veil{
   display:grid;grid-template-columns:repeat(6,1fr);gap:2.4rem;
   width:100%;max-width:100rem;
 }
+/* верхний ряд — 2 карточки, нижний — 3 */
 .tp-grid .tp-card{grid-column:span 2}
-.tp-grid .tp-card:nth-child(4){grid-column:2 / span 2}
+.tp-grid .tp-card:nth-child(1),
+.tp-grid .tp-card:nth-child(2){grid-column:span 3}
 @media (orientation:landscape){
   .tp-grid{grid-template-columns:repeat(5,1fr);max-width:162rem;gap:1.9rem}
   .tp-grid .tp-card,
@@ -305,8 +307,10 @@ body.tp-mode-inner .tp-bg__veil{
 
 .tp-card{
   position:relative;overflow:hidden;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:1.5rem;padding:3.4rem 1.6rem;
+  /* иконки прижаты к верху — арки стоят в одну линию
+     независимо от того, в одну или две строки лёг заголовок */
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  gap:1.5rem;padding:2.6rem 1.6rem 2.6rem;
   min-height:25rem;
   background:linear-gradient(170deg,rgba(22,41,74,.86) 0%,rgba(11,21,38,.92) 100%);
   border:1px solid var(--tp-line);border-radius:1.4rem;
@@ -340,6 +344,7 @@ body.tp-mode-inner .tp-bg__veil{
 .tp-card__num{
   font-family:var(--tp-display);font-size:1.2rem;letter-spacing:.4em;
   color:var(--tp-gold-deep);
+  margin-top:auto; /* номер и заголовок — вниз, арка остаётся вверху */
 }
 .tp-card__title{
   font-family:var(--tp-display);
@@ -383,7 +388,7 @@ body.tp-mode-inner .tp-bg__veil{
   border-radius:7.1rem 7.1rem 1rem 1rem}
 .tp-lang__code{font-size:2.9rem;padding-top:2rem;letter-spacing:.12em}
 
-/* --- вертикальный экран: карточки в сетку 2+2+1 --- */
+/* --- вертикальный экран: карточки в сетку 2 сверху + 3 снизу --- */
 @media (max-aspect-ratio:1/1){
   .tp-hero{font-size:6.4rem}
   .tp-hero__sup{font-size:2.3rem}
@@ -393,15 +398,17 @@ body.tp-mode-inner .tp-bg__veil{
   .tp-menu__body{padding:2.6vh 4vw 2.6vh;gap:2.4vh;justify-content:center;overflow:hidden}
   .tp-grid{
     display:grid!important;
-    grid-template-columns:repeat(2,1fr);
+    grid-template-columns:repeat(6,1fr);
     gap:2.2vh 3vw;
     width:100%;max-width:none;align-items:stretch;
   }
-  .tp-grid .tp-card{grid-column:span 1!important;width:auto;height:100%;min-height:0;max-height:23vh}
-  /* пятая карточка — во всю ширину */
-  .tp-grid .tp-card:nth-child(5){grid-column:1 / -1!important;min-height:0;max-height:17vh}
+  /* нижний ряд — три карточки по две колонки */
+  .tp-grid .tp-card{grid-column:span 2!important;width:auto;height:100%;min-height:0;max-height:30vh}
+  /* верхний ряд — две карточки по три колонки */
+  .tp-grid .tp-card:nth-child(1),
+  .tp-grid .tp-card:nth-child(2){grid-column:span 3!important}
   .tp-card__title{font-size:1.9rem;line-height:1.24}
-  .tp-arch{width:12rem}
+  .tp-arch{width:10.8rem;height:10.8rem}
   .tp-langs{gap:3rem}
   .tp-lang{width:16rem;height:12.8rem;border-radius:8rem 8rem 1rem 1rem}
   .tp-lang__code{font-size:3.3rem;padding-top:2.3rem}
