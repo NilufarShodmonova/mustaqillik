@@ -552,8 +552,23 @@ go(0);
 /* выбор языка и пауза убраны — язык задаётся с главного экрана */
 #lang,#play{display:none!important}
 #dots{bottom:var(--mq-main-h)!important}
-/* воздух вокруг слайда: под шапкой, над кнопками и по бокам */
-.sl{padding:calc(var(--mq-head-h) + 40px) 40px calc(var(--mq-main-h) + 40px)}
+/* Воздух сверху и снизу. Слои слайда абсолютные (inset:0), поэтому padding
+   на .sl их не двигает — сдвигаем сами слои: 40px под шапкой и 40px над
+   нижней панелью (кнопки «Главная», точки, стрелки). */
+.sl{padding:0}
+.sl > .vis,
+.sl > .scrim,
+.sl > .num,
+.sl > .fig,
+.sl > .ti,
+.sl > .lst,
+.sl > #src{
+  top:calc(var(--mq-head-h) + 40px);
+  bottom:calc(var(--mq-main-h) + 40px);
+}
+/* подпись и источник фото — тоже выше нижней панели */
+.sl > .cap{bottom:calc(var(--mq-main-h) + 40px)}
+.sl > .cr{bottom:calc(var(--mq-main-h) + 40px)}
 /* стрелки листания — снизу справа */
 .mq-nav{position:fixed;right:26px;bottom:18px;z-index:120;display:flex;gap:12px}
 .mq-nav button{
