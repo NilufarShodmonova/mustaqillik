@@ -638,5 +638,59 @@ go(0);
   if(nx) nx.addEventListener("click",function(e){ e.stopPropagation(); key("ArrowRight"); });
 })();
 </script>
+
+<!-- ===== киоск: звук нажатия и запрет масштабирования ===== -->
+<style id="mq-kiosk-css">
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
+html,body{overscroll-behavior:none;-webkit-touch-callout:none}
+</style>
+<script id="mq-kiosk-js">
+(function(){
+  "use strict";
+  if (window.__mqKiosk) return;
+  window.__mqKiosk = true;
+
+  /* ---------- масштабирование двумя пальцами и двойным тапом выключено ----
+     touch-action:manipulation убирает двойной тап, обработчики ниже —
+     жесты Safari, Ctrl+колесо и Ctrl/Cmd +/-/0 на подключённой клавиатуре. */
+  function stop(e){ e.preventDefault(); }
+  ['gesturestart','gesturechange','gestureend'].forEach(function(t){
+    document.addEventListener(t, stop, {passive:false});
+  });
+  document.addEventListener('touchmove', function(e){
+    if (e.touches && e.touches.length > 1) e.preventDefault();
+  }, {passive:false});
+  document.addEventListener('wheel', function(e){
+    if (e.ctrlKey) e.preventDefault();
+  }, {passive:false});
+  document.addEventListener('keydown', function(e){
+    if ((e.ctrlKey || e.metaKey) && ['+','-','=','0','_'].indexOf(e.key) !== -1) e.preventDefault();
+  });
+
+  /* ---------- щелчок на каждое нажатие ----------
+     Звук синтезируется на месте — никаких внешних файлов, работает офлайн. */
+  var AC = null;
+  function beep(){
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!AC) AC = new Ctx();
+      if (AC.state === 'suspended') AC.resume();
+      var t = AC.currentTime,
+          o = AC.createOscillator(),
+          g = AC.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(900, t);
+      o.frequency.exponentialRampToValueAtTime(340, t + 0.055);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.055, t + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t); o.stop(t + 0.1);
+    }catch(err){}
+  }
+  document.addEventListener('pointerdown', beep, true);
+})();
+</script>
 </body>
 </html>
