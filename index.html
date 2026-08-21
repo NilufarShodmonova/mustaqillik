@@ -445,7 +445,9 @@ body.tp-mode-inner .tp-bg__veil{
    отрисовался шире расчётного.
    Специфичность (0,2,0) перебивает все базовые правила .tp-hero. */
 .tp-splash__mid{max-width:1020px;width:100%;margin-left:auto;margin-right:auto}
-.tp-splash__mid .tp-hero{font-size:4rem;white-space:nowrap;max-width:1020px}
+.tp-splash__mid .tp-hero{font-size:4rem;max-width:1020px}
+/* Название в две строки: «MUSTAQILLIK» / «YO‘LLARI» */
+.tp-hero--2l .tp-hero__ln{display:block;white-space:nowrap}
 @media (orientation:landscape){
   .tp-splash__mid .tp-hero{font-size:5.2rem}
 }
@@ -495,7 +497,7 @@ body.tp-mode-inner .tp-bg__veil{
   </div>
 
   <div class="tp-splash__mid">
-    <div class="tp-hero" style="text-align: center;">MUSTAQILLIK YO‘LLARI</div>
+    <div class="tp-hero tp-hero--2l" style="text-align: center;"><span class="tp-hero__ln">MUSTAQILLIK</span><span class="tp-hero__ln">YO‘LLARI</span></div>
     <div class="tp-hero__sub">YO‘LLAR TARIXIDAN BUGUNGI KUNGACHA</div>
   </div>
 
@@ -587,7 +589,7 @@ uz:{
   soon:'BO\u2018LIM TAYYORLANMOQDA',
   org:'O\u2018ZBEKISTON RESPUBLIKASI TRANSPORT VAZIRLIGI HUZURIDAGI<br>AVTOMOBIL YO\u2018LLARI QO\u2018MITASINING',
   name:'YO\u2018LLAR VA YO\u2018L INFRATUZILMASI EKSPOZITSION-TA\u2019LIMIY KOMPLEKSI',
-  menuTitle:'MUSTAQILLIK YO‘LLARI',
+  menuTitle:'MUSTAQILLIK<br>YO‘LLARI',
   menuSub:'BO\u2018LIMNI TANLANG',
   sections:[
     {icon:'dawn',    num:'I',   title:'MUSTAQILLIK YO‘LI<span class="tp-card__years">1991–1993</span>',              href:'1-page.html',  ready:1},
@@ -603,7 +605,7 @@ ru:{
   soon:'РАЗДЕЛ ГОТОВИТСЯ',
   org:'КОМИТЕТА ПО АВТОМОБИЛЬНЫМ ДОРОГАМ ПРИ<br>МИНИСТЕРСТВЕ ТРАНСПОРТА РЕСПУБЛИКИ УЗБЕКИСТАН',
   name:'ЭКСПОЗИЦИОННО-ОБРАЗОВАТЕЛЬНЫЙ КОМПЛЕКС ДОРОГ И ДОРОЖНОЙ ИНФРАСТРУКТУРЫ',
-  menuTitle:'ДОРОГИ НЕЗАВИСИМОСТИ',
+  menuTitle:'ДОРОГИ<br>НЕЗАВИСИМОСТИ',
   menuSub:'ВЫБЕРИТЕ РАЗДЕЛ',
   sections:[
     {icon:'dawn',    num:'I',   title:'ПУТЬ НЕЗАВИСИМОСТИ<span class="tp-card__years">1991–1993</span>',           href:'1-page.html',  ready:1},
@@ -619,7 +621,7 @@ en:{
   soon:'SECTION IN PREPARATION',
   org:'COMMITTEE FOR AUTOMOBILE ROADS UNDER THE MINISTRY OF<br>TRANSPORT OF THE REPUBLIC OF UZBEKISTAN',
   name:'ROADS AND ROAD INFRASTRUCTURE EXPOSITION-EDUCATIONAL COMPLEX',
-  menuTitle:'ROADS OF INDEPENDENCE',
+  menuTitle:'ROADS OF<br>INDEPENDENCE',
   menuSub:'SELECT A SECTION',
   sections:[
     {icon:'dawn',    num:'I',   title:'THE ROAD TO INDEPENDENCE<span class="tp-card__years">1991–1993</span>',     href:'1-page.html',  ready:1},
@@ -662,7 +664,7 @@ en:{
     var d = TP_DATA[lang];
     if ($('#tp-head-welcome')) $('#tp-head-welcome').textContent = d.welcome;
     if ($('#tp-splash-welcome')) $('#tp-splash-welcome').textContent = d.welcome;
-    $('#tp-menu-title').textContent = d.menuTitle;
+    $('#tp-menu-title').innerHTML = d.menuTitle;
     $('#tp-menu-sub').textContent   = d.menuSub;
 
     var grid = $('#tp-grid');
@@ -792,7 +794,13 @@ en:{
     var MAX_W = Math.min(1020, window.innerWidth - 60);
     el.style.fontSize = '';
     var base = parseFloat(window.getComputedStyle(el).fontSize);
-    var w = el.scrollWidth;
+    var lines = el.querySelectorAll('.tp-hero__ln');
+    var w = 0, i;
+    if (lines.length) {
+      for (i = 0; i < lines.length; i++) w = Math.max(w, lines[i].scrollWidth);
+    } else {
+      w = el.scrollWidth;
+    }
     if (w > MAX_W) el.style.fontSize = (base * MAX_W / w) + 'px';
   }
   tpFitHero();
