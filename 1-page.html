@@ -569,8 +569,10 @@ go(0);
 /* подпись и источник фото — тоже выше нижней панели */
 .sl > .cap{bottom:calc(var(--mq-main-h) + 40px)}
 .sl > .cr{bottom:calc(var(--mq-main-h) + 40px)}
-/* стрелки листания — снизу справа */
-.mq-nav{position:fixed;right:26px;bottom:18px;z-index:120;display:flex;gap:12px}
+/* стрелки листания — «назад» в левом нижнем углу, «вперёд» в правом */
+.mq-nav{position:fixed;left:26px;right:26px;bottom:18px;z-index:120;
+  display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+.mq-nav button{pointer-events:auto}
 .mq-nav button{
   width:56px;height:56px;border-radius:50%;
   border:1px solid rgba(212,175,110,.55);background:rgba(9,17,29,.74);
