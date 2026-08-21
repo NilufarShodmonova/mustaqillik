@@ -474,6 +474,19 @@ body.tp-mode-inner .tp-bg__veil{
 @media (max-aspect-ratio:1/1){
   .tp-card__title{font-size:1.78rem}
 }
+
+/* ================= ПОЗИЦИЯ ЗАГОЛОВКА ОБЛОЖКИ =================
+   Заголовок и подзаголовок — на 40% высоты экрана.
+   Блок выведен из потока, поэтому шапка сверху и языки снизу
+   остаются на своих местах. !important перебивает сдвиги
+   .tp-splash__mid из киоскных правил выше. */
+#tp-splash .tp-splash__mid{
+  position:absolute;left:50%;top:40%;
+  transform:translate(-50%,-50%)!important;
+  margin:0!important;
+  width:100%;max-width:1020px;
+  padding:0 3rem;
+}
 </style>
 </head>
 <body>
