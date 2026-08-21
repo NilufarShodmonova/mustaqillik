@@ -504,31 +504,31 @@ go(0);
 <!-- ===== шапка раздела + кнопка «Главная» ===== -->
 <style>
 /* ===== ШАПКА РАЗДЕЛА И КНОПКА «ГЛАВНАЯ» (стиль index.html) ===== */
-:root{--mq-head-h:92px;--mq-main-h:74px}
+/* Кегль и высота шапки — как в index.html: там 1rem = calc(.55vw + .55vh),
+   шапка = логотип 5.4rem + вертикальные отступы, заголовок 2.5rem. */
+:root{--mq-u:calc(.55vw + .55vh);--mq-head-h:calc(var(--mq-u)*9.2);--mq-main-h:74px}
+@media (max-aspect-ratio:1/1){:root{--mq-head-h:calc(var(--mq-u)*9.9)}}
 .mq-head{
   position:fixed;top:0;left:0;right:0;z-index:120;
   height:var(--mq-head-h);
-  display:flex;align-items:center;gap:22px;padding:0 34px;
+  display:flex;align-items:center;gap:calc(var(--mq-u)*2.2);padding:0 calc(var(--mq-u)*3.4);
   border-bottom:1px solid rgba(212,175,110,.35);
   background:linear-gradient(135deg,rgba(16,31,56,.88) 0%,rgba(11,22,40,.74) 50%,rgba(7,14,26,.94) 100%);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   box-shadow:0 10px 30px rgba(0,0,0,.5);
   font-family:"Trajan Pro","Palatino Linotype","Book Antiqua",Georgia,"Times New Roman",serif;
 }
-.mq-head__logo{width:56px;height:auto;flex:0 0 auto;filter:drop-shadow(0 6px 16px rgba(0,0,0,.75))}
+.mq-head__logo{width:calc(var(--mq-u)*5.4);height:auto;flex:0 0 auto;filter:drop-shadow(0 6px 16px rgba(0,0,0,.75))}
 .mq-head__txt{min-width:0;flex:1;text-align:left}
-.mq-head__kick{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:rgba(223,212,191,.68);line-height:1.6}
+.mq-head__kick{font-size:calc(var(--mq-u)*1.15);letter-spacing:.28em;text-transform:uppercase;color:rgba(223,212,191,.68);line-height:1.6}
 .mq-head__name{
-  font-size:26px;letter-spacing:.2em;text-transform:uppercase;color:#f2dda8;
+  font-size:calc(var(--mq-u)*2.5);letter-spacing:.22em;text-transform:uppercase;color:#f2dda8;
   margin-top:2px;line-height:1.18;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   text-shadow:0 2px 10px rgba(0,0,0,.6);
 }
 @media (max-width:900px){
-  :root{--mq-head-h:78px}
-  .mq-head{gap:16px;padding:0 20px}
-  .mq-head__logo{width:44px}
-  .mq-head__name{font-size:19px;letter-spacing:.14em}
+  .mq-head{gap:calc(var(--mq-u)*1.6);padding:0 calc(var(--mq-u)*2)}
 }
 .mq-main{
   position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:120;
@@ -607,8 +607,26 @@ go(0);
     if(!ok(l)){ l=null; try{ l=localStorage.getItem("bipLang"); }catch(e){} }
     return ok(l)?l:"uz";
   }
+  /* длинные названия разделов не режем многоточием — ужимаем кегль под ширину */
+  function fitTitle(){
+    var el = document.getElementById("mq-title");
+    if (!el) return;
+    el.style.fontSize = "";
+    var box = el.clientWidth;
+    if (!box) return;
+    var w = el.scrollWidth;
+    if (w > box){
+      var base = parseFloat(window.getComputedStyle(el).fontSize);
+      el.style.fontSize = (base * box / w) + "px";
+    }
+  }
+  window.addEventListener("resize", fitTitle);
+  window.addEventListener("orientationchange", fitTitle);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
+
   function paint(l){
     document.getElementById("mq-title").textContent = TITLES[l]||TITLES.uz;
+    fitTitle();
     document.getElementById("mq-main-label").textContent = LABELS[l]||LABELS.uz;
     document.getElementById("mq-main").href = "index.html?lang="+l+"#tp-menu";
   }
