@@ -481,6 +481,38 @@ body.tp-mode-inner .tp-bg__veil{
   padding:0 3rem;
 }
 
+/* ================= СЕТКА МЕНЮ: 3 СВЕРХУ + 2 СНИЗУ =================
+   Раньше в ландшафте карточки I и II получали span 7 на пятиколоночной
+   сетке (правила :nth-child специфичнее, чем grid-column:auto) и
+   растягивались на всю ширину. Теперь сетка из 6 колонок в обеих
+   ориентациях: верхний ряд — три карточки по 2 колонки,
+   нижний — две по 3. !important перебивает киоскные правила выше. */
+.tp-grid{grid-template-columns:repeat(6,1fr)!important}
+.tp-grid .tp-card:nth-child(1),
+.tp-grid .tp-card:nth-child(2),
+.tp-grid .tp-card:nth-child(3){grid-column:span 2!important}
+/* нижний ряд — те же две карточки обычной ширины, по центру */
+.tp-grid .tp-card:nth-child(4){grid-column:2/span 2!important}
+.tp-grid .tp-card:nth-child(5){grid-column:4/span 2!important}
+/* без min-width:0 колонки 1fr не сжимаются меньше своего текста —
+   на узких экранах сетка вылезала за правый край */
+.tp-grid .tp-card{min-width:0}
+.tp-card__title{overflow-wrap:break-word}
+
+/* В ландшафте два ряда должны уместиться в 1080 px по высоте:
+   карточки без min-height, арки и отступы мельче. */
+@media (orientation:landscape){
+  .tp-menu__body{gap:1.6vh;padding:1.6vh 3vw 1.2vh;overflow:hidden;justify-content:center}
+  .tp-menu__title{font-size:2.4rem}
+  .tp-menu__sub{margin-top:.6rem;font-size:1.25rem}
+  .tp-grid{gap:2vh 1.6vw;max-width:120rem}
+  .tp-grid .tp-card{min-height:0;height:100%;max-height:25.5vh;padding:1.8vh 1.2vw;gap:1.2vh;overflow:hidden}
+  .tp-arch{width:10vh;height:11vh}
+  .tp-arch__ico{width:4.6vh;height:4.6vh}
+  .tp-card__title{font-size:1.5rem}
+  .tp-grid .tp-card:nth-child(3) .tp-card__title{font-size:1.5rem}
+}
+
 /* Кнопки выбора языка — на 5% высоты экрана от низа */
 #tp-splash .tp-splash__bot{
   position:absolute;left:0;right:0;bottom:5%;
