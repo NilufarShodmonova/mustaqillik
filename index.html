@@ -930,8 +930,14 @@ html,body{overscroll-behavior:none;-webkit-touch-callout:none}
 
   function onSplashPage(){ return !!document.getElementById('tp-splash'); }
 
+  /* Титульный экран сам по себе заставка — блокировку на нём не включаем */
+  function splashActive(){
+    var s = document.getElementById('tp-splash');
+    return !!(s && s.classList.contains('is-active'));
+  }
+
   function lock(){
-    if (locked || !lockEl) return;
+    if (locked || !lockEl || splashActive()) return;
     locked = true;
     dressLock();
     lockEl.hidden = false;
@@ -961,6 +967,7 @@ html,body{overscroll-behavior:none;-webkit-touch-callout:none}
   function resetIdle(){
     if (locked) return;
     clearTimeout(idleTimer);
+    if (splashActive()) return;   /* на титульном экране таймер не заводим */
     idleTimer = setTimeout(lock, IDLE_MS);
   }
 
