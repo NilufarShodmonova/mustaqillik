@@ -114,7 +114,7 @@ body.tp-mode-inner .tp-bg__veil{
   display:flex;
   flex-direction:column;
   text-align:left;
-  font-family:var(--tp-sans);
+  font-family:var(--tp-body);
   font-size:1.45rem;
   line-height:1.4;
   letter-spacing:.12em;
@@ -440,20 +440,13 @@ body.tp-mode-inner .tp-bg__veil{
 #tp-toast.is-on{opacity:1;transform:translate(-50%,0)}
 
 /* ================= ОБЛОЖКА: «MUSTAQILLIK YO‘LLARI» =================
-   Заголовок держим в полосе 1020 px с воздухом по краям экрана 1080 px:
-   кегль уменьшен, а скрипт tpFitHero() дожимает строку, если шрифт
-   отрисовался шире расчётного.
-   Специфичность (0,2,0) перебивает все базовые правила .tp-hero. */
+   Кегль — общий стандарт проектов: 5.2rem (ландшафт) / 6.4rem (портрет),
+   он задан базовыми правилами .tp-hero. Здесь только держим строку
+   в полосе 1020 px; если шрифт отрисовался шире, tpFitHero() дожмёт. */
 .tp-splash__mid{max-width:1020px;width:100%;margin-left:auto;margin-right:auto}
-.tp-splash__mid .tp-hero{font-size:4rem;max-width:1020px}
+.tp-splash__mid .tp-hero{max-width:1020px}
 /* Название в две строки: «MUSTAQILLIK» / «YO‘LLARI» */
 .tp-hero--2l .tp-hero__ln{display:block;white-space:nowrap}
-@media (orientation:landscape){
-  .tp-splash__mid .tp-hero{font-size:5.2rem}
-}
-@media (max-aspect-ratio:1/1){
-  .tp-splash__mid .tp-hero{font-size:4.9rem}
-}
 
 /* Третья карточка — самый длинный заголовок, кегль чуть мельче остальных */
 .tp-grid .tp-card:nth-child(3) .tp-card__title{font-size:1.32rem}
@@ -486,6 +479,14 @@ body.tp-mode-inner .tp-bg__veil{
   margin:0!important;
   width:100%;max-width:1020px;
   padding:0 3rem;
+}
+
+/* Кнопки выбора языка — на 5% высоты экрана от низа */
+#tp-splash .tp-splash__bot{
+  position:absolute;left:0;right:0;bottom:5%;
+  width:100%;margin:0!important;
+  padding:0 3rem!important;
+  transform:none!important;
 }
 </style>
 </head>
