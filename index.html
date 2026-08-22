@@ -911,26 +911,36 @@ html,body{overscroll-behavior:none;-webkit-touch-callout:none}
     if ((e.ctrlKey || e.metaKey) && ['+','-','=','0','_'].indexOf(e.key) !== -1) e.preventDefault();
   });
 
-  /* ---------- щелчок на каждое нажатие ----------
-     Звук синтезируется на месте — никаких внешних файлов, работает офлайн. */
-  var AC = null;
+  /* ---------- минималистичный щелчок на каждое нажатие ----------
+     Короткий сухой клик: импульс шума через полосовой фильтр, без тона и без хвоста.
+     Синтезируется на месте — никаких внешних файлов, работает офлайн. */
+  var AC = null, CLICK = null, lastClick = -1;
+  function clickBuf(c){
+    if (CLICK) return CLICK;
+    var len = Math.floor(c.sampleRate * 0.03),
+        b = c.createBuffer(1, len, c.sampleRate),
+        d = b.getChannelData(0), k;
+    for (k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 26);
+    CLICK = b; return b;
+  }
   function beep(){
     try{
       var Ctx = window.AudioContext || window.webkitAudioContext;
       if (!Ctx) return;
       if (!AC) AC = new Ctx();
       if (AC.state === 'suspended') AC.resume();
-      var t = AC.currentTime,
-          o = AC.createOscillator(),
-          g = AC.createGain();
-      o.type = 'triangle';
-      o.frequency.setValueAtTime(900, t);
-      o.frequency.exponentialRampToValueAtTime(340, t + 0.055);
+      var t = AC.currentTime;
+      if (t - lastClick < 0.04) return;   /* без наложений при частых касаниях */
+      lastClick = t;
+      var s = AC.createBufferSource(); s.buffer = clickBuf(AC);
+      var bp = AC.createBiquadFilter();
+      bp.type = 'bandpass'; bp.frequency.setValueAtTime(2200, t); bp.Q.setValueAtTime(0.7, t);
+      var g = AC.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.055, t + 0.006);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
-      o.connect(g); g.connect(AC.destination);
-      o.start(t); o.stop(t + 0.1);
+      g.gain.linearRampToValueAtTime(0.05, t + 0.002);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.022);
+      s.connect(bp); bp.connect(g); g.connect(AC.destination);
+      s.start(t); s.stop(t + 0.035);
     }catch(err){}
   }
   document.addEventListener('pointerdown', beep, true);
