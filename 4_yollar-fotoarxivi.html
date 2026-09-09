@@ -680,6 +680,36 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <p class="lead" data-t="hub_lead"></p>
 </section>
 <div id="books" hidden></div>
+
+<!-- MENU: albomlar / fotoarxiv -->
+<section class="screen" id="s-menu">
+  <div class="shelf-head mq-menu-head"><h2 id="mn-h"></h2><p id="mn-p"></p></div>
+  <div class="mq-menu">
+    <button type="button" class="mq-opt" data-go="alboms" style="--i:0">
+      <span class="mq-opt__ic"><svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 17c-5-4-11-6-19-6v36c8 0 14 2 19 6 5-4 11-6 19-6V11c-8 0-14 2-19 6z"/>
+        <path d="M32 17v36"/><path d="M20 23h5M20 31h5M39 23h5M39 31h5"/>
+      </svg></span>
+      <span class="mq-opt__t" id="mn-a-t"></span>
+      <span class="mq-opt__s" id="mn-a-s"></span>
+    </button>
+    <button type="button" class="mq-opt" data-go="slides" style="--i:1">
+      <span class="mq-opt__ic"><svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M8 20h10l4-6h20l4 6h10v30H8z"/>
+        <circle cx="32" cy="34" r="10"/><circle cx="32" cy="34" r="4"/>
+        <path d="M47 25h5"/>
+      </svg></span>
+      <span class="mq-opt__t" id="mn-f-t"></span>
+      <span class="mq-opt__s" id="mn-f-s"></span>
+    </button>
+  </div>
+</section>
+
+<!-- ALBOMLAR -->
+<section class="screen" id="s-alboms">
+  <div class="shelf-head mq-menu-head"><h2 id="al-h"></h2><p id="al-p"></p></div>
+  <div class="al-wrap"><div class="al-grid" id="alGrid"></div></div>
+</section>
 <!-- OPENER -->
 <div class="opener" id="opener">
   <div class="op-book" id="opBook">
@@ -1263,7 +1293,7 @@ applyLang();
   var tmr=null, wasOn=hub.classList.contains('on');
   function start(){ clearTimeout(tmr); tmr=setTimeout(function(){
       if(!hub.classList.contains('on')) return;
-      show('slides'); revealChapters();
+      show('menu'); if(window.mqRevealMenu) window.mqRevealMenu();
     },5200); }
   function stop(){ clearTimeout(tmr); }
   new MutationObserver(function(){
@@ -1470,8 +1500,13 @@ applyLang();
   paintBack(lang);
   var bk=document.getElementById("mq-back");
   if(bk) bk.addEventListener("click",function(){
-    var orig=document.querySelector('#s-photo .back[data-go="slides"]');
-    if(orig) orig.click();
+    var ph=document.getElementById("s-photo");
+    if(ph && ph.classList.contains("on")){
+      var orig=document.querySelector('#s-photo .back[data-go="slides"]');
+      if(orig) orig.click();
+      return;
+    }
+    if(window.mqShowMenu) window.mqShowMenu();   /* albomlar / davrlar -> menyu */
   });
   function tap(id){ var t=document.getElementById(id); if(t) t.click(); }
   var sp=document.getElementById("mq-shot-prev"), sn=document.getElementById("mq-shot-next");
@@ -1486,6 +1521,257 @@ applyLang();
     paint(l); paintBack(l);
     try{ localStorage.setItem("bipLang", l); }catch(err){}
   }, true);
+})();
+</script>
+
+
+<!-- ===== меню раздела: «Альбомы» и «Фотоархив» ===== -->
+<style id="mq-menu-css">
+/* заголовок занимает верхнюю половину экрана: содержимое начинается ровно с 50% высоты.
+   flex:0 1 auto — на низких экранах полоса заголовка ужимается, чтобы всё поместилось. */
+#s-menu .mq-menu-head{
+  flex:0 1 auto;height:calc(50vh - var(--mq-head-h));min-height:0;margin:0!important;
+  display:flex;flex-direction:column;justify-content:center;text-align:center;
+}
+#s-menu::after{content:"";flex:1 1 auto;min-height:0}
+/* альбомы: карточки — по центру высоты экрана,
+   заголовок — по центру полосы над ними (равные полосы сверху и снизу) */
+#s-alboms .mq-menu-head{
+  flex:1 1 0;min-height:0;margin:0!important;
+  display:flex;flex-direction:column;justify-content:center;text-align:center;
+}
+#s-alboms::after{content:"";flex:1 1 0;min-height:0}
+#s-menu .mq-menu-head h2,#s-alboms .mq-menu-head h2{
+  opacity:1;transform:none;filter:none;letter-spacing:.2em;
+  font-size:clamp(38px,5.4vw,68px);
+}
+#s-menu .mq-menu-head p,#s-alboms .mq-menu-head p{
+  opacity:1;transform:none;font-size:clamp(15px,1.6vw,21px);
+}
+/* две полосы во всю ширину, одна под другой */
+.mq-menu{
+  flex:0 0 auto;display:flex;flex-direction:column;align-items:center;
+  gap:clamp(14px,2.2vh,26px);padding:0 clamp(20px,4vw,60px);width:100%;
+}
+.mq-opt{
+  width:min(1180px,92vw);
+  display:grid;grid-template-columns:auto 1fr auto;
+  column-gap:clamp(18px,2.8vw,44px);row-gap:4px;align-items:center;text-align:left;
+  padding:clamp(18px,3vh,34px) clamp(24px,3.2vw,46px);
+  border:1px solid var(--gold-dim);border-radius:20px;
+  background:linear-gradient(120deg,rgba(22,34,56,.72),rgba(9,16,28,.72));
+  color:#f3ece0;cursor:pointer;
+  box-shadow:0 26px 48px -26px rgba(0,0,0,.9);
+  opacity:0;transform:translateY(26px) scale(.985);
+  transition:opacity .85s ease,transform .95s cubic-bezier(.16,.7,.24,1),
+             border-color .3s,background .3s,box-shadow .35s;
+}
+#s-menu.ready .mq-opt{opacity:1;transform:none;transition-delay:calc(var(--i) * .12s)}
+#s-menu.ready .mq-opt:hover{
+  transform:translateY(-4px);border-color:var(--gold);
+  background:linear-gradient(120deg,rgba(32,48,76,.8),rgba(12,21,36,.8));
+  box-shadow:0 34px 56px -24px rgba(0,0,0,.95);
+}
+#s-menu.ready .mq-opt:active{transform:translateY(0) scale(.995)}
+.mq-opt__ic{grid-column:1;grid-row:1 / 3;display:flex;align-items:center}
+.mq-opt__ic svg{
+  width:clamp(56px,5vw,84px);height:auto;display:block;
+  fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
+}
+.mq-opt__t{
+  grid-column:2;grid-row:1;align-self:end;
+  font-family:var(--serif);font-size:clamp(22px,2.4vw,34px);
+  letter-spacing:.2em;text-transform:uppercase;color:#f2dda8;line-height:1.25;
+}
+.mq-opt__s{
+  grid-column:2;grid-row:2;align-self:start;
+  color:var(--muted);font-size:clamp(13px,1.2vw,17px);letter-spacing:.07em;line-height:1.5;
+}
+/* стрелка справа — полоса читается как переход в раздел */
+.mq-opt::after{
+  content:"";grid-column:3;grid-row:1 / 3;
+  width:18px;height:18px;justify-self:end;align-self:center;margin-right:6px;
+  border-top:1.6px solid var(--gold);border-right:1.6px solid var(--gold);
+  transform:rotate(45deg);opacity:.7;
+  transition:transform .3s ease,opacity .3s ease;
+}
+#s-menu.ready .mq-opt:hover::after{transform:rotate(45deg) translate(4px,-4px);opacity:1}
+
+/* ---------- список альбомов: ряд из трёх карточек, без рамок ---------- */
+.al-wrap{
+  flex:0 0 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:2px clamp(20px,4vw,60px) 6px;width:100%;
+}
+.al-wrap::-webkit-scrollbar{width:6px}
+.al-wrap::-webkit-scrollbar-track{background:transparent}
+.al-wrap::-webkit-scrollbar-thumb{background:rgba(201,151,63,.35);border-radius:4px}
+.al-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(18px,2.6vw,44px);
+  width:min(1240px,92vw);margin:0 auto;
+}
+.al-card{
+  display:flex;flex-direction:column;gap:clamp(10px,1.4vh,18px);
+  text-decoration:none;color:inherit;text-align:left;
+  border:0;background:none;padding:0;
+  opacity:0;transform:translateY(26px) scale(.985);
+  transition:opacity .8s ease,transform .95s cubic-bezier(.16,.7,.24,1);
+  transition-delay:calc(var(--i) * .09s);
+}
+#s-alboms.ready .al-card{opacity:1;transform:none}
+#s-alboms.ready .al-card:hover{transform:translateY(-6px)}
+#s-alboms.ready .al-card:active{transform:translateY(-1px) scale(.99)}
+.al-card .cov{
+  position:relative;overflow:hidden;background:#050a12;
+  width:100%;aspect-ratio:1.41;border-radius:10px;
+  box-shadow:0 26px 48px -26px rgba(0,0,0,.95);
+}
+.al-card .cov img{
+  width:100%;height:100%;object-fit:cover;filter:brightness(.88);
+  transition:transform 1.1s cubic-bezier(.2,.7,.3,1),filter .5s;
+}
+.al-card:hover .cov img{transform:scale(1.05);filter:brightness(1)}
+.al-card .txt{display:flex;flex-direction:column;gap:8px;min-width:0}
+.al-card .txt h3{
+  margin:0;font-family:var(--serif);font-weight:500;
+  font-size:clamp(15px,1.35vw,21px);letter-spacing:.06em;
+  color:#fff;line-height:1.35;
+}
+.al-card .cnt{
+  color:var(--muted);font-size:clamp(11px,.95vw,14px);
+  letter-spacing:.18em;text-transform:uppercase;
+}
+
+/* нижняя кнопка «Orqaga» работает и на этих экранах */
+#s-slides.on ~ .mq-back,#s-alboms.on ~ .mq-back{display:inline-flex}
+#s-slides.on ~ .mq-main,#s-alboms.on ~ .mq-main{left:50%;transform:translateX(10px)}
+#s-slides.on ~ .mq-main:active,#s-alboms.on ~ .mq-main:active{transform:translateX(10px) scale(.95)}
+
+/* портрет (вертикальный киоск): полосы во всю ширину, размеры остаются крупными */
+@media (max-aspect-ratio:1/1){
+  .mq-opt{width:94vw}
+  .mq-opt{min-height:clamp(140px,20vh,280px);padding:clamp(20px,3vh,48px) clamp(24px,3.4vw,48px)}
+  .mq-opt__ic svg{width:clamp(64px,9vw,120px)}
+  .mq-opt__t{font-size:clamp(24px,4vw,48px)}
+  .mq-opt__s{font-size:clamp(14px,2.2vw,26px)}
+  .mq-opt::after{width:24px;height:24px}
+  .al-card .txt h3{font-size:clamp(15px,1.9vw,24px)}
+  .al-card .cnt{font-size:clamp(11px,1.25vw,16px)}
+}
+/* маленький экран (телефон): всё ужимаем */
+@media (max-width:900px){
+  .mq-opt{column-gap:18px;padding:20px}
+  .mq-opt__ic svg{width:52px}
+  .mq-opt::after{width:14px;height:14px;margin-right:0}
+  .al-grid{grid-template-columns:1fr;width:min(340px,86vw)}
+}
+</style>
+<script id="mq-menu-js">
+(function(){
+  "use strict";
+
+  /* новый альбом = одна запись здесь (папка в alboms/) */
+  var ALBOMS = [{
+    href:  "alboms/albom_1/%D0%90%D0%BB%D1%8C%D0%B1%D0%BE%D0%BC_4.html",
+    cover: "alboms/albom_1/files/shot.jpg",
+    pages: 42,
+    sub:   {uz:"Toshkent halqa avtomobil yoʻli rekonstruksiyasi, 2005–2006",
+            ru:"Реконструкция Ташкентской кольцевой автодороги, 2005–2006",
+            en:"Reconstruction of the Tashkent ring road, 2005–2006"}
+  },{
+    href:  "alboms/albom_2/%D0%90%D0%BB%D1%8C%D0%B1%D0%BE%D0%BC_5.html",
+    cover: "alboms/albom_2/files/shot.jpg",
+    pages: 33,
+    sub:   {uz:"Oliy Kengash sessiyasi hujjatlari, 1992-yil",
+            ru:"Документы сессии Олий Кенгаша, 1992 год",
+            en:"Documents of the Oliy Kengash session, 1992"}
+  },{
+    href:  "alboms/albom_3/%D0%90%D0%BB%D1%8C%D0%B1%D0%BE%D0%BC_6.html",
+    cover: "alboms/albom_3/files/shot.jpg",
+    pages: 29,
+    sub:   {uz:"Amudaryo koʻprigining ochilishi, Qoraqalpogʻiston, 1999-yil",
+            ru:"Открытие моста через Амударью, Каракалпакстан, 1999 год",
+            en:"Opening of the Amu Darya bridge, Karakalpakstan, 1999"}
+  }];
+
+  var T = {
+    menu_h: {uz:"BOʻLIMNI TANLANG", ru:"ВЫБЕРИТЕ РАЗДЕЛ",  en:"CHOOSE A SECTION"},
+    menu_p: {uz:"Albomlar yoki davrlar boʻyicha fotoarxiv",
+             ru:"Альбомы или фотоархив по периодам",
+             en:"Albums or the photo archive by period"},
+    a_t:    {uz:"ALBOMLAR", ru:"АЛЬБОМЫ", en:"ALBUMS"},
+    a_s:    {uz:"Fotoalbomlarni varaqlab koʻring",
+             ru:"Листайте фотоальбомы",
+             en:"Leaf through the photo albums"},
+    f_t:    {uz:"FOTOARXIV", ru:"ФОТОАРХИВ", en:"PHOTO ARCHIVE"},
+    f_s:    {uz:"Davrlar boʻyicha suratlar",
+             ru:"Снимки по периодам",
+             en:"Photographs by period"},
+    al_h:   {uz:"ALBOMLAR", ru:"АЛЬБОМЫ", en:"ALBUMS"},
+    al_p:   {uz:"Albomni tanlang", ru:"Выберите альбом", en:"Choose an album"},
+    pages:  {uz:"sahifa", ru:"стр.", en:"pages"}
+  };
+
+  function ok(l){ return l==="uz"||l==="ru"||l==="en"; }
+  function lang(){
+    var l=null;
+    try{ l=new URLSearchParams(location.search).get("lang"); }catch(e){}
+    if(!ok(l)){ l=null; try{ l=localStorage.getItem("bipLang"); }catch(e){} }
+    return ok(l)?l:"uz";
+  }
+  function tr(o,l){ return (o&&o[l])||(o&&o.uz)||""; }
+  function set(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; }
+
+  var grid=document.getElementById("alGrid");
+  function buildAlboms(l){
+    if(!grid) return;
+    grid.innerHTML="";
+    ALBOMS.forEach(function(a,i){
+      var el=document.createElement("a");
+      el.className="al-card"; el.href=a.href; el.style.setProperty("--i",i);
+      el.innerHTML='<div class="cov"><img src="'+a.cover+'" alt=""></div>'+
+                   '<div class="txt"><h3>'+tr(a.sub,l)+'</h3>'+
+                   '<span class="cnt">'+a.pages+' '+tr(T.pages,l)+'</span></div>';
+      grid.appendChild(el);
+    });
+  }
+
+  function paint(l){
+    set("mn-h",tr(T.menu_h,l)); set("mn-p",tr(T.menu_p,l));
+    set("mn-a-t",tr(T.a_t,l));  set("mn-a-s",tr(T.a_s,l));
+    set("mn-f-t",tr(T.f_t,l));  set("mn-f-s",tr(T.f_s,l));
+    set("al-h",tr(T.al_h,l));   set("al-p",tr(T.al_p,l));
+    buildAlboms(l);
+  }
+  paint(lang());
+  document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("[data-l]");
+    if(b&&ok(b.getAttribute("data-l"))) paint(b.getAttribute("data-l"));
+  },true);
+
+  /* появление карточек */
+  function reveal(id){
+    var s=document.getElementById(id); if(!s) return;
+    s.classList.remove("ready"); void s.offsetWidth;
+    var done=false;
+    function on(){ if(done) return; done=true; s.classList.add("ready"); }
+    /* кадр может не прийти (переход по таймеру заставки) — дублируем таймером */
+    requestAnimationFrame(function(){ requestAnimationFrame(on); });
+    setTimeout(on,60);
+  }
+  window.mqRevealMenu=function(){ reveal("s-menu"); };
+  window.mqShowMenu=function(){ if(window.show) show("menu"); reveal("s-menu"); };
+
+  document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("[data-go]"); if(!b) return;
+    var g=b.getAttribute("data-go");
+    if(g==="alboms") reveal("s-alboms");
+    if(g==="menu")   reveal("s-menu");
+  });
+
+  /* возврат из альбома: сразу список альбомов, без заставки */
+  var h=(location.hash||"").replace("#","");
+  if((h==="alboms"||h==="menu") && window.show){ show(h); reveal("s-"+h); }
 })();
 </script>
 
